@@ -11,17 +11,6 @@ tasks.push({
 });
 
 export const taskRouter = createTRPCRouter({
-    hello: baseProcedure
-        .input(
-            z.object({
-                text: z.string(),
-            }),
-        )
-        .query((opts) => {
-            return {
-                greeting: `hello ${opts.input.text}`,
-            };
-        }),
     getAll: baseProcedure
         .query(() => {
             return tasks;
