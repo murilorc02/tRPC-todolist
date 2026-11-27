@@ -12,7 +12,9 @@ export const updateTaskSchema = taskSchema.pick({ id: true }).extend({
     title: z.string().min(1).optional(),
     status: z.boolean().optional()
 });
+export const deleteTaskSchema = taskSchema.pick({ id: true });
 
 export type Task = z.infer<typeof taskSchema>;
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
+export type DeleteTaskInput = z.infer<typeof deleteTaskSchema>;

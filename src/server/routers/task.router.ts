@@ -1,14 +1,7 @@
-import { z } from 'zod';
 import { baseProcedure, createTRPCRouter } from '../trpc/init';
-import { type Task, createTaskSchema } from '@/src/shared/schemas/task.schema';
+import { type Task, createTaskSchema, deleteTaskSchema, updateTaskSchema } from '@/src/shared/schemas/task.schema';
 
 const tasks: Task[] = [];
-tasks.push({
-    id: 'sample',
-    title: 'Sample task',
-    createdAt: new Date(),
-    status: false
-});
 
 export const taskRouter = createTRPCRouter({
     getAll: baseProcedure
@@ -26,5 +19,24 @@ export const taskRouter = createTRPCRouter({
             };
             tasks.push(task);
             return task;
+        }),
+    update: baseProcedure
+        .input(updateTaskSchema)
+        .mutation(({ input }) => {
+            const toUpdate = tasks.find((task) => task.id === input.id);
+            if (toUpdate === undefined) throw new Error("Task not found");
+
+            if (input.status !== undefined) toUpdate.status = input.status;
+            if (input.title !== undefined) toUpdate.title = input.title;
+
+            return toUpdate;
+        }),
+    delete: baseProcedure
+        .input(deleteTaskSchema)
+        .mutation(({ input }) => {
+            const index = tasks.findIndex((task) => task.id === input.id);
+            if (index === -1) throw new Error("Task not found");
+            const [deleted] = tasks.splice(index, 1);
+            return deleted;
         })
 })

@@ -2,8 +2,8 @@
 
 import { useTRPC } from "@/src/trpc/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { SquarePen, Trash } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
+import TaskRow from "./TaskRow";
 
 export default function TaskList() {
     const trpc = useTRPC();
@@ -19,6 +19,22 @@ export default function TaskList() {
                 queryClient.invalidateQueries({ queryKey: trpc.task.getAll.queryKey() });
             },
         }),
+    );
+
+    const deleteTask = useMutation(
+        trpc.task.delete.mutationOptions({
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: trpc.task.getAll.queryKey() });
+            }
+        })
+    );
+    
+    const updateTask = useMutation(
+        trpc.task.update.mutationOptions({
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: trpc.task.getAll.queryKey() });
+            }
+        })
     );
 
     if (isLoading) return <p>Loading...</p>;
@@ -43,18 +59,15 @@ export default function TaskList() {
                 </button>
             </form>
             <ul>
-                {tasks?.map((task) =>
-                    <React.Fragment key={task.id}>
-                        <li className="flex flex-row justify-between pt-5 pb-5 m-0">
-                            <input defaultValue={task.title}/>
-                            <span className="flex flex-row justify-between gap-2">
-                                <SquarePen className="hover:text-blue-600 transition-colors duration-100"/>
-                                <Trash className="hover:text-red-700 transition-colors duration-100"/>
-                            </span>
+                {tasks !== undefined && tasks.length > 0
+                    ? tasks.map((task) =>
+                        <TaskRow key={task.id} task={task} onUpdate={updateTask.mutate} onDelete={deleteTask.mutate}/>
+                    ) : (
+                        <li className="justify-center text-center pt-5 pb-5 m-0">
+                            <p className="text-slate-500">No task created yet.</p>
                         </li>
-                        <hr className="border-slate-200"/>
-                    </React.Fragment>
-                )}
+                    )
+            }
             </ul>
         </div>
     )
